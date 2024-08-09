@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "Kaplica",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "id": null, "NAZWISKO I IMIĘ 1": "Kaplica" }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ 16.814135584607687, 51.761961754389048 ], [ 16.814031952849678, 51.76200284947322 ], [ 16.814212837388077, 51.762184185491314 ], [ 16.814316249918409, 51.762142620820477 ], [ 16.814135584607687, 51.761961754389048 ] ] ] ] } }
+]
+}
