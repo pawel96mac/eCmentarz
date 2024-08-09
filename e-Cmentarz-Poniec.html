@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eCmentarz Poniec</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-rotate/leaflet-rotate.css">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://unpkg.com/leaflet-rotate/leaflet-rotate.js"></script>
+    <script src="https://unpkg.com/leaflet-smooth@1.1.0/leaflet-smooth.min.js"></script>
+    <script src="https://unpkg.com/leaflet-simplify@1.0.3/leaflet-simplify.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-rotate@1.0.2/dist/leaflet-rotate.css">
+<script src="https://unpkg.com/leaflet-rotate@1.0.2/dist/leaflet-rotate.js"></script>
+    <head>
+        <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
+        
+    </head>
+    
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="title">eCmentarz Poniec</div>
+    <div id="map-container">
+        <div id="map"></div>
+    </div>
+    <div class="search-container">
+        <input type="text" id="searchBox" class="search-box" placeholder="Wyszukaj Nazwisko i Imię/Rok">
+        <button class="search-button" onclick="searchGrave()">🔍</button>
+        <div id="searchResults"></div>
+    </div>
+    <div class="legend" id="legend">
+        Legenda
+        <div class="legend-content" id="legendContent"></div>
+    </div>
+    <div class="footer">
+        <div class="designer" id="authorPopup">Autorzy</div>
+    </div>
+    <!-- Dodanie napisu w prawym górnym rogu dla mobilnych wersji -->
+    <div class="designer-small">Autorzy</div>
+
+    console.log('Zoom level:', zoomLevel);
+    console.log('Tooltip:', subLayer.getTooltip());
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

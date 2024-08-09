@@ -1,0 +1,241 @@
+body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+#map-container { position: relative; height: 600px; width: 100%; }
+#map { height: 100%; width: 100%; transition: opacity 0.5s ease; }
+
+
+.custom-tooltip {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px;
+    font-size: 12px;
+}
+.popup-controls {
+display: flex;
+justify-content: center;
+margin-top: 10px;
+}
+.popup-controls button {
+background-color: #4CAF50;
+border: none;
+color: white;
+padding: 5px 10px;
+font-size: 12px;
+margin: 0 5px;
+cursor: pointer;
+border-radius: 5px;
+}
+.popup-controls button:hover {
+background-color: #45a049;
+}
+.popup-content {
+position: relative;
+overflow: hidden; /* Zapewnia, że uchwyt nie wychodzi poza popup */
+}
+
+.resize-handle {
+position: absolute;
+width: 16px;
+height: 16px;
+background: rgba(0, 0, 0, 0.2);
+cursor: se-resize; /* Kursor zmiany rozmiaru */
+}
+
+.resize-handle.bottom-right {
+bottom: 0;
+right: 0;
+}
+
+.search-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    background: white;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    max-width: 90%;
+    box-sizing: border-box;
+    width: 300px;
+}
+.search-box {
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-size: 14px;
+    width: calc(100% - 90px); /* Adjusted width to fit container */
+}
+.search-button {
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 10px;
+}
+.search-button:hover {
+    background-color: #45a049;
+}
+.search-result-item {
+    padding: 5px;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+}
+.search-result-item:hover {
+    background-color: #f0f0f0;
+}
+.title {
+    text-align: center;
+    font-size: 24px;
+    margin: 10px 0;
+    font-weight: bold;
+}
+.footer {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 18px;
+    font-size: 14px;
+    background: white;
+    text-align: right;
+    width: 100%;
+    box-shadow: 0 -1px 10px rgba(174, 171, 171, 0.3);
+}
+.footer .designer {
+    font-size: 15px;
+    font-weight: bold;
+}
+.footer .text {
+    font-size: 14px;
+    font-weight: normal;
+}
+#searchResults {
+    max-height: 400px;
+    overflow-y: auto;
+    background: white;
+    z-index: 1001; /* Ensures it is on top of other elements */
+   
+}
+
+.search-result-item {
+margin-bottom: 5px; /* Odstęp między elementami wyników wyszukiwania */
+}
+
+.search-result-name {
+font-weight: bold; /* Opcjonalnie pogrubienie nazwiska */
+}
+
+.search-result-date {
+margin-top: 5px; /* Odstęp między nazwiskiem a datą */
+margin-bottom: 5px; /* Odstęp między datą urodzenia a datą śmierci */
+}
+.legend {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    font-size: 14px;
+    z-index: 1000;
+    cursor: pointer;
+    max-width: 90%;
+    box-sizing: border-box;
+}
+.legend-content {
+    display: none;
+}
+.legend .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+.legend .legend-item div {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #000;
+    margin-right: 10px;
+}
+.legend:hover .legend-content {
+    display: block;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .title {
+        font-size: 18px;
+    }
+    .search-container {
+        top: auto;
+        bottom: 10px;
+        right: 10px;
+        width: 100%;
+        bottom: -1vh; /* Przesunięcie w dół o 10% wysokości ekranu */
+    }
+    .search-box {
+        width: calc(100% - 90px); /* Adjusted width to fit container on mobile */
+    }
+    .search-button {
+        font-size: 12px;
+    }
+    .legend {
+        bottom: auto; /* Reset bottom positioning */
+        top: 45px; /* Move to top */
+        right: 10px; /* Move to right */
+        left: auto; /* Reset left positioning */
+        max-width: 100%;
+    }
+    .legend-content {
+        display: none; /* Hide legend content initially */
+    }
+    .footer {
+        display: none; /* Ukryj stopkę na mobilnych wersjach */
+    }
+    .designer-small {
+        position: absolute;
+        top: 5px; /* Przesunięcie w dół o kilka pikseli */
+        right: 9px;
+        background: white;
+        padding: 5px;
+        font-size: 8px; /* Mały rozmiar czcionki */
+        border-radius: 5px;
+        box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        z-index: 1000;
+        cursor: pointer;
+    }
+    .leaflet-popup {
+position: absolute;
+text-align: center;
+margin-bottom: 20px;
+width: 280px;
+left: 10px; /* Przesuwa popup o 10 pikseli w prawo */
+z-index: 9999;
+}
+    .leaflet-popup-content-wrapper {
+max-height: 350px !important; /* Zmniejsz wysokość popupa */
+overflow-y: auto; /* Dodaj przewijanie pionowe, jeśli zawartość jest za długa */
+z-index: 1999;
+}
+
+.leaflet-popup-content {
+font-size: 12px; /* Zmniejsz rozmiar czcionki */
+}
+
+.leaflet-popup-content p {
+margin: 10px 0; /* Zmniejsz marginesy wewnętrzne */
+width: 80%;
+position: center;
+}
+#searchResults {
+    max-height: 200px;
+    overflow-y: auto;
+    background: white;
+    z-index: 1001; /* Ensures it is on top of other elements */
+    
+}
+}
+

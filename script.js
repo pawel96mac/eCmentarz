@@ -1,0 +1,757 @@
+
+    // Ustal zoom na podstawie szerokości ekranu
+    var initialZoom = window.innerWidth <= 768 ? 18 : 19;
+
+    // Inicjalizacja mapy
+    var map = L.map('map', {
+        center: [51.761846519306985, 16.813415227957215], // Współrzędne cmentarza
+        zoom: initialZoom, // Ustalony zoom
+        maxZoom: 25, // Maksymalne powiększenie
+        renderer: L.canvas() // Użyj renderera Canvas dla lepszej wydajności
+    });
+    var layers = {};
+    var layerPromises = [];
+    var orderedOverlayMaps = [];
+
+    // Dodanie warstw mapy
+    var baseMaps = {
+        "OSM": L.tileLayer('https://api.maptiler.com/maps/openstreetmap/{z}/{x}/{y}@2x.jpg?key=skY2IhGdjYaBBPgoXCPK', {
+            maxZoom: 30,
+            attribution: '© OpenStreetMap contributors'
+        }),
+        "Satelita": L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}@2x.jpg?key=skY2IhGdjYaBBPgoXCPK', {
+            maxZoom: 30,
+            attribution: '© MapTiler contributors'
+        })
+    };
+   
+
+    // Dodanie warstwy OSM jako domyślny
+    baseMaps.OSM.addTo(map);
+
+    function style(feature) {
+        var layerId = feature.layerId;
+        return {
+            fillColor: getColor(layerId),
+            weight: 1,
+            opacity: 1,
+            color: 'black',
+            fillOpacity: 0.7
+        };
+    }
+   
+function createNonInteractiveLayer(url, layerId, layerName, styleOptions) {
+    return new Promise(function(resolve, reject) {
+        $.getJSON(url, function(data) {
+            var layer = L.geoJSON(data, {
+                style: function(feature) {
+                    return {
+                        ...styleOptions,
+                        interactive: false  // Wyłącza klikalność
+                    };
+                }
+            }).addTo(map); // Dodaj warstwę do mapy
+
+            layers[layerId] = layer;
+            overlayMaps[layerName] = layer;
+            resolve(layer);
+        }).fail(function() {
+            reject('Error loading non-interactive layer: ' + url);
+        });
+    });
+}
+
+
+
+function getColor(layerId) {
+    var colors = {
+        'groby1': 'red',
+        'groby2': 'green',
+        'groby3': 'black',
+        'groby4': 'orange',
+        'groby5': 'purple',
+        'groby6': 'cyan',
+        'groby7': '#000080',
+        'groby8': 'maroon',
+        'groby9': 'blue',
+        'groby10': 'lime',
+        'groby11': 'fuchsia',
+        'groby12': 'white',
+        'groby13': 'teal',
+        'groby14': 'olive',
+        'groby15': 'gray',
+        'groby16': 'green',
+    };
+    return colors[layerId] || '';
+}
+
+function createLayer(url, layerId) {
+    return new Promise(function(resolve, reject) {
+        $.getJSON(url, function(data) {
+            var layerGroup = L.geoJSON(data, {
+                style: function(feature) {
+                    var defaultStyle = {
+                        color: 'black',   // Obramowanie na podstawie koloru warstwy
+                        weight: 0.2,      // Grubość obramowania
+                        fillColor: getColor(layerId), // Wypełnienie na podstawie koloru warstwy
+                        fillOpacity: 0.7 , // Półprzezroczyste wypełnienie
+                        smoothFactor: 0 
+                    };
+
+                    if (layerId === 'groby16') {
+                        return {
+                            color: 'green',    // Zielone obramowanie
+                            weight: 1,         // Grubość obramowania
+                            fillColor: 'none', // Brak wypełnienia
+                            fillOpacity: 0     // Całkowicie przezroczyste wypełnienie
+                        };
+                    } else {
+                        return defaultStyle;
+                    }
+                },
+                onEachFeature: function(feature, layer) {
+                    var miejsce = feature.properties.miejsce || "brak danych";
+                    var popupContent = "<p><strong>Kwatera-Rząd-Numer Grobu: " + miejsce + "</strong></p>";
+
+                    if (layerId === 'groby16') {
+                        popupContent += "<p>REZERWACJA</p>";
+                    } else {
+                        var numberOfPeople = 0;
+                        for (var i = 1; i <= 12; i++) {
+                            var nazwisko = feature.properties["NAZWISKO I IMIĘ " + i];
+                            var dataUrod = feature.properties["DATA URODZENIA " + i] || "brak danych";
+                            var dataSmie = feature.properties["DATA ŚMIERCI " + i] || "brak danych";
+
+                            if (nazwisko) {
+                                popupContent += "<p>" + nazwisko + " - " + dataUrod + " - " + dataSmie + "<br /></p>";
+                                numberOfPeople++;
+                            }
+                        }
+
+                        var zdjecie = feature.properties.ZDJĘCIE || "brak danych";
+
+                        if (numberOfPeople >= 1) {
+                            if (numberOfPeople <= 2) {
+                                popupContent += '<a href="#" class="view-image-link">Schowaj zdjęcie</a>';
+                                popupContent += '<div class="image-container" style="display:block;">' + 
+                                                zdjecie + 
+                                                '</div>';
+                            } else {
+                                popupContent += '<a href="#" class="view-image-link">Zobacz zdjęcie</a>';
+                                popupContent += '<div class="image-container" style="display:none;">' + 
+                                                zdjecie + 
+                                                '</div>';
+                            }
+                        } else {
+                            popupContent += "<p>" + zdjecie + "</p>";
+                        }
+                    }
+
+                    layer.bindPopup(popupContent);
+
+                    // Dodajemy tooltip, jeśli nie istnieje
+                    var tooltipContent = "KWATERA-RZĄD-NR GROBU: " + miejsce;
+                    for (var i = 1; i <= 12; i++) {
+                        var nazwisko = feature.properties["NAZWISKO I IMIĘ " + i];
+                        if (nazwisko) {
+                            tooltipContent += "<br/>" + nazwisko;
+                        }
+                    }
+
+                    // Bind tooltip with the content
+                    layer.bindTooltip(tooltipContent, {
+                        permanent: false,
+                        direction: 'top',
+                        opacity: 0.9,
+                        className: 'custom-tooltip'
+                    });
+
+                    // Store original style as an object
+                    feature.properties._originalStyle = {
+                        color: layer.options.color,
+                        weight: layer.options.weight,
+                        fillColor: layer.options.fillColor,
+                        fillOpacity: layer.options.fillOpacity
+                    };
+
+                    layer.on('popupopen', function() {
+                        centerMapOnLayer(layer);
+                        layer.setStyle({
+                            color: 'yellow',
+                            fillColor: 'yellow',
+                            fillOpacity: 0.6 // Optionally keep the same fill opacity
+                        }); // Zmieniony styl podczas otwierania popupu
+
+                        if (numberOfPeople >= 1) {
+                            $('.view-image-link').on('click', function(event) {
+                                event.preventDefault();
+                                var link = $(this);
+                                var container = link.siblings('.image-container');
+                                if (container.is(':visible')) {
+                                    link.text('Zobacz zdjęcie');
+                                    container.hide();
+                                } else {
+                                    link.text('Schowaj zdjęcie');
+                                    container.show();
+                                }
+                            });
+
+                            setTimeout(function() {
+                                // Przesunięcie popupu w górę
+                                var popupElement = layer.getPopup().getElement();
+                                var offsetY = -100; // Domyślne przesunięcie
+
+                                if (window.innerWidth <= 768) {
+                                    offsetY = -250;
+                                }
+
+                                var newLatLng = layer.getLatLng();
+                                map.setView(newLatLng, 21, {
+                                    animate: true,
+                                    duration: 1
+                                });
+                            }, 300); // Czas oczekiwania na pełne wyświetlenie popupa (300ms)
+                        }
+                    });
+
+                    layer.on('popupclose', function() {
+                        var originalStyle = feature.properties._originalStyle;
+                        if (originalStyle) {
+                            console.log("Restoring original style:", originalStyle); // Debugging line
+                            layer.setStyle(originalStyle);
+                        } else {
+                            console.log("No original style found, applying default style"); // Debugging line
+                            layer.setStyle({
+                                color: 'black',
+                                weight: 0.3,
+                                fillColor: getColor(layerId),
+                                fillOpacity: 0.6
+                            });
+                        }
+                    });
+                }
+            });
+
+            // Apply smoothing
+            layerGroup.eachLayer(function(layer) {
+                layer.options.smoothFactor = 1.5; // Adjust the smoothFactor value
+            });
+
+            resolve(layerGroup);
+        }).fail(function() {
+            console.error("Nie udało się załadować pliku GeoJSON: " + url);
+            resolve(null);
+        });
+    });
+}
+// Linki do pobrania plików geojson z Google Drive
+var geoJsonUrls = [
+    'https://drive.google.com/uc?export=download&id=1NHYNPDNrl5wz4OJYH1EGU5oDpDj9CPuG',
+    'https://drive.google.com/uc?export=download&id=1ENTfZe1vql1ZbY-UcE3WDSblA_FMm3wN',
+    'https://drive.google.com/uc?export=download&id=1_-mGoK5O1L9oj-6KYNOkRdBHh__Nm7zA',
+    'https://drive.google.com/uc?export=download&id=1048RcsOk3F1oiAoq0Hk_zsixcb6_tlL0',
+    'https://drive.google.com/uc?export=download&id=1Ba-z-6vzsovZ75ddKdm46BPecc9NwpIE',
+    'https://drive.google.com/uc?export=download&id=1dCT-4CymK392t8qXLkASEE-Fe0oK9l5R',
+    'https://drive.google.com/uc?export=download&id=1zpos9CykhTC_54MKTs7-5gwnNDVsOnUo',
+    'https://drive.google.com/uc?export=download&id=1GRN7XcQUGF6IpqGRJfG98Jbpzkhhu2aP',
+    'https://drive.google.com/uc?export=download&id=1dybRHTbLKx2yBw44pVnv0285QaPRfwF5',
+    'https://drive.google.com/uc?export=download&id=1HSRPiisQ-TlhK8JOy-toeGjL0tgZKbES',
+    'https://drive.google.com/uc?export=download&id=1tqarzi6ot4L1FR7lVJ4C50t6DJ6frxVW',
+    'https://drive.google.com/uc?export=download&id=1syFAg_-NshvoPtlZ_k7Y0bJiDgatKbuW',
+    'https://drive.google.com/uc?export=download&id=1VQBMecN04-Dz88euVrR9CWZrDeOhhTqX',
+    'https://drive.google.com/uc?export=download&id=1aJNTdFV6YLuUwgwrL5MOuTn-hh7UNwFL',
+    'https://drive.google.com/uc?export=download&id=17p12fyWPj1heVZX3ay65ZSnbZdKPTn4g',
+    'https://drive.google.com/uc?export=download&id=1dBiQYkh2OWNtOm5-OtBr5H4DODWcsd2f',
+    'https://drive.google.com/uc?export=download&id=17OQXjTgx3R5AyOTsvsoOhvGlEkENkZoH',
+    'https://drive.google.com/uc?export=download&id=1vNbBM8n1DU20Rru7ll9Pe1y8HfcqSM17',
+    'https://drive.google.com/uc?export=download&id=12J2UMNamZ7DqY1OVXDa60JqRtMM1rZ68'
+];
+
+// Iterowanie przez wszystkie URL i tworzenie warstw
+geoJsonUrls.forEach(function(url, index) {
+    createLayer(url, 'layerId_' + index).then(function(layerGroup) {
+        if (layerGroup) {
+            console.log('Layer added to map.');
+        } else {
+            console.error('Failed to add layer.');
+        }
+    });
+});
+    
+    
+    // Funkcja do zarządzania widocznością tooltipów na podstawie zoomu
+    function handleTooltipVisibility() {
+        var zoomLevel = map.getZoom();
+    
+        map.eachLayer(function(layer) {
+            if (layer instanceof L.GeoJSON) {
+                layer.eachLayer(function(subLayer) {
+                    if (subLayer instanceof L.Marker) {
+                        if (zoomLevel >= 20 && zoomLevel <= 30) {
+                            // Sprawdź, czy tooltip nie jest już ustawiony
+                            if (!subLayer.getTooltip()) {
+                                var tooltipContent = "KWATERA-RZĄD-NR GROBU: " + (subLayer.feature.properties.miejsce || "brak danych");
+                                for (var i = 1; i <= 12; i++) {
+                                    var nazwisko = subLayer.feature.properties["NAZWISKO I IMIĘ " + i];
+                                    if (nazwisko) {
+                                        tooltipContent += "<br/>" + nazwisko;
+                                    }
+                                }
+                                subLayer.bindTooltip(tooltipContent, {
+                                    permanent: false,
+                                    direction: 'top',
+                                    opacity: 0.9,
+                                    className: 'custom-tooltip'
+                                });
+                            }
+                            subLayer.openTooltip();
+                        } else {
+                            // Ukryj tooltipy na wszystkich innych poziomach zoomu
+                            subLayer.closeTooltip();
+                            subLayer.unbindTooltip();
+                        }
+                    }
+                });
+            }
+        });
+    }
+    
+    // Użycie debounce do obsługi zdarzenia zoomend
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+    
+    // Dodanie debouncingu do obsługi zoomend
+    map.on('zoomend', debounce(handleTooltipVisibility, 300));
+    
+    // Dodanie debouncingu do obsługi zoomstart
+    map.on('zoomstart', debounce(handleTooltipVisibility, 300));
+    
+    // Opcjonalnie: Dodanie opóźnienia przy załadowaniu mapy
+    map.on('load', function() {
+        handleTooltipVisibility();
+    });
+    
+    // Użycie debounce do obsługi zdarzenia zoomend
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+    
+    // Dodanie debouncingu do obsługi zoomend
+    map.on('zoomend', debounce(handleTooltipVisibility, 300));
+    
+    // Opcjonalnie: Dodanie opóźnienia przy załadowaniu mapy
+    map.on('load', function() {
+        handleTooltipVisibility();
+    });
+
+
+// Dodaj warstwy dla kwater 1-15 i Rezerwacje dla 16
+for (var i = 1; i <= 16; i++) {
+    (function(i) {
+        var layerName = (i === 16) ? 'Rezerwacje' : 'Kwatera ' + i;
+        layerPromises.push(
+            createLayer('groby' + i + '.geojson', 'groby' + i).then(function(layer) {
+                if (layer) {
+                    layers['groby' + i] = layer;
+                    orderedOverlayMaps.push({ name: layerName, layer: layer });
+                }
+            })
+        );
+    })(i);
+}
+// Dodaj warstwę dla "Rezerwacje"
+layerPromises.push(
+    createLayer('groby16.geojson', 'groby16').then(function(layer) {
+        if (layer) {
+            layers['groby16'] = layer;
+            var layerName = 'Rezerwacje';  // Nazwa warstwy w legendzie
+            orderedOverlayMaps.push({ name: layerName, layer: layer });
+        } else {
+            console.error('Nie udało się załadować warstwy Rezerwacje (groby16.geojson)');
+        }
+    }).catch(function(error) {
+        console.error('Błąd podczas ładowania warstwy Rezerwacje: ', error);
+    })
+);
+
+// Dodaj warstwy dla Grobowców 1-2
+for (var j = 1; j <= 2; j++) {
+(function(j) {
+    layerPromises.push(
+        createLayer('Grobowiec' + j + '.geojson', 'Grobowiec' + j).then(function(layer) {
+            if (layer) {
+                layers['Grobowiec' + j] = layer;
+                var layerName = 'Grobowiec ' + j;
+                orderedOverlayMaps.push({ name: layerName, layer: layer });
+            }
+        })
+    );
+})(j);
+}
+
+
+Promise.all(layerPromises).then(function() {
+    // Posortuj warstwy: najpierw kwatery, potem grobowce
+    orderedOverlayMaps.sort(function(a, b) {
+        var aIsGrobowiec = a.name.startsWith('Grobowiec');
+        var bIsGrobowiec = b.name.startsWith('Grobowiec');
+        
+        if (aIsGrobowiec && !bIsGrobowiec) return 1; // Grobowce na końcu
+        if (!aIsGrobowiec && bIsGrobowiec) return -1; // Kwatery na początku
+
+        // Sortowanie numeryczne wewnątrz grupy (kwatery albo grobowce)
+        var aMatch = a.name.match(/\d+/);
+        var bMatch = b.name.match(/\d+/);
+
+        var aNum = aMatch ? parseInt(aMatch[0]) : (aIsGrobowiec ? Infinity : 0);
+        var bNum = bMatch ? parseInt(bMatch[0]) : (bIsGrobowiec ? Infinity : 0);
+
+        return aNum - bNum;
+    });
+
+    var overlayMaps = {}; // Przygotuj obiekt dla kontrolera warstw
+
+    // Dodaj warstwy do obiektu w zamówionej kolejności
+    orderedOverlayMaps.forEach(function(item) {
+        overlayMaps[item.name] = item.layer;
+    });
+
+    // Użycie standardowego kontrolera warstw
+    L.control.layers(baseMaps, overlayMaps, { collapsed: true, position: 'topleft' }).addTo(map);
+
+    // Automatycznie dodaj wszystkie warstwy na mapę
+    for (var key in overlayMaps) {
+        overlayMaps[key].addTo(map);
+    }
+
+    updateLegend(); 
+});
+
+
+
+
+    function shiftMapByPixels(pixels) {
+        var center = map.getCenter();
+        var offset = map.containerPointToLatLng([0, pixels]);
+        var newCenter = L.latLng(center.lat + offset.lat - center.lat, center.lng);
+        map.setView(newCenter, map.getZoom(), { animate: false });
+    }
+
+    function centerMapOnLayer(layer) {
+        var bounds = layer.getBounds();
+        map.fitBounds(bounds, { padding: [50, 50], animate: false });
+        map.setZoom(map.getZoom() - 3, { animate: false });
+        shiftMapByPixels(100);
+    }
+
+        function extractYear(dateString) {
+            // Usuń wszelkie dodatkowe teksty takie jak "ur." na początku
+            var cleanedDate = dateString.replace(/^ur\.\s*/, '').trim();
+        
+            // Wyrażenie regularne do znajdowania czterocyfrowych liczb
+            var yearMatches = cleanedDate.match(/\b\d{4}\b/g);
+        
+            // Zwróć pierwszą czterocyfrową liczbę, jeśli istnieje
+            return yearMatches ? yearMatches[0] : "brak danych";
+        }
+        
+        function searchGrave() {
+            var searchTerm = $('#searchBox').val().trim().toLowerCase();
+            var searchTerms = searchTerm.split(/\s+/); // Rozdziel zapytanie na słowa
+        
+            // Pokaż wyniki tylko po wpisaniu co najmniej 2 znaków
+            if (searchTerm.length < 2) {
+                $('#searchResults').hide();
+                return;
+            }
+        
+            var searchResults = [];
+        
+            Object.keys(layers).forEach(function(layerId) {
+                layers[layerId].eachLayer(function(layer) {
+                    var properties = layer.feature.properties;
+                    var resultFields = [];
+        
+                    // Zbieraj dane z nazwisk, imion, dat urodzenia oraz dat śmierci
+                    for (var i = 1; i <= 15; i++) {
+                        var name = properties["NAZWISKO I IMIĘ " + i];
+                        var birthDate = properties["DATA URODZENIA " + i];
+                        var deathDate = properties["DATA ŚMIERCI " + i];
+                        var birthYear = birthDate ? extractYear(birthDate) : "brak danych";
+                        var deathYear = deathDate ? extractYear(deathDate) : "brak danych";
+        
+                        if (name || birthYear !== "brak danych" || deathYear !== "brak danych") {
+                            var nameParts = name ? name.toLowerCase().split(/\s+/) : []; // Rozdziel nazwisko i imię na części
+                            resultFields.push({
+                                name: name,
+                                nameParts: nameParts, // Przechowuj części imienia i nazwiska
+                                birthYear: birthYear,
+                                deathYear: deathYear
+                            });
+                        }
+                    }
+        
+                    resultFields.forEach(function(field) {
+                        var allTermsFound = searchTerms.every(function(term) {
+                            return field.nameParts.some(function(part) {
+                                return part.includes(term);
+                            }) || field.birthYear.includes(term) || field.deathYear.includes(term);
+                        });
+        
+                        if (allTermsFound) {
+                            searchResults.push({
+                                matches: [field.name, field.birthYear, field.deathYear],
+                                layer: layer,
+                                layerId: layerId
+                            });
+                        }
+                    });
+                });
+            });
+        
+            // Sortowanie wyników według dopasowania
+            searchResults.sort(function(a, b) {
+                return a.matches[0].toLowerCase().indexOf(searchTerm) - b.matches[0].toLowerCase().indexOf(searchTerm);
+            });
+        
+            $('#searchResults').empty().show();
+            searchResults.forEach(function(result) {
+                var name = result.matches[0];
+                var birthYear = result.matches[1];
+                var deathYear = result.matches[2];
+        
+                // Przygotowanie tekstu do wyświetlenia
+                var displayText = '<div class="search-result-name">' + name + '</div>';
+                if (birthYear !== "brak danych") {
+                    displayText += '<div class="search-result-date">ur. ' + birthYear + '</div>';
+                }
+                if (deathYear !== "brak danych") {
+                    displayText += '<div class="search-result-date">zm. ' + deathYear + '</div>';
+                }
+        
+                var item = $('<div class="search-result-item">').html(displayText);
+                item.css({
+                    'border': '3px solid ' + getColor(result.layerId), // Dodanie obramowania w kolorze warstwy
+                    'border-radius': '8px', // Zaokrąglenie rogów
+                    'padding': '10px', // Wewnętrzne odstępy
+                    'margin': '5px', // Margines wokół elementu
+                    'box-shadow': '0 0 5px rgba(0, 0, 0, 0.2)' // Cień dla lepszego efektu wizualnego
+                });
+                item.on('click', function() {
+                    var layer = result.layer;
+                    centerMapOnLayer(layer);
+                    layer.openPopup();
+                    layer.setStyle({ fillColor: 'yellow' });
+                    $('#searchResults').hide();
+                });
+                $('#searchResults').append(item);
+            });
+        }
+        
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+$('#searchBox').on('input', debounce(searchGrave, 300));
+// Funkcja do tworzenia popupu z przyciskami
+function createPopupContent() {
+return `
+    <div class="popup-content">
+        <p>Treść popupa tutaj.</p>
+        <div class="popup-controls">
+            <button onclick="resizePopup(-20)">-</button>
+            <button onclick="resizePopup(20)">+</button>
+        </div>
+    </div>
+`;
+}
+
+// Funkcja do zmieniania rozmiaru popupu
+let popupSize = 300; // Początkowa szerokość popupu
+
+function resizePopup(amount) {
+popupSize += amount;
+if (popupSize < 100) popupSize = 100; // Minimalna szerokość
+if (popupSize > 600) popupSize = 600; // Maksymalna szerokość
+
+const popups = document.querySelectorAll('.leaflet-popup-content-wrapper');
+popups.forEach(popup => {
+    popup.style.width = popupSize + 'px';
+});
+}
+
+// Przykład użycia w tworzeniu popupu
+L.marker([51.5, -0.09]).addTo(map)
+.bindPopup(createPopupContent());
+function updateLegend() {
+var legendContent = $('#legendContent');
+legendContent.empty(); // Czyści legendę
+
+// Przygotowanie tablicy do przechowywania warstw "groby"
+var legendItems = [];
+
+// Zbieranie warstw "groby" do tablicy
+Object.keys(layers).forEach(function(layerId) {
+    if (layerId.startsWith('groby')) {  // Tylko dla warstw "groby"
+        var color = getColor(layerId);
+        if (color) {  // Tylko dodaj, jeśli kolor nie jest pusty
+            var layerIndex = parseInt(layerId.replace('groby', ''));
+            if (!isNaN(layerIndex)) {  // Sprawdzamy, czy numer jest prawidłowy
+                legendItems.push({
+                    index: layerIndex,
+                    name: 'Kwatera ' + (layerIndex <= 15 ? layerIndex : String.fromCharCode(64 + layerIndex - 9)),
+                    color: color
+                });
+            }
+        }
+    }
+});
+
+// Sortowanie tablicy według numerów kwater
+legendItems.sort(function(a, b) {
+    return a.index - b.index;
+});
+
+// Dodawanie posortowanych warstw do legendy
+legendItems.forEach(function(item) {
+    legendContent.append(
+        '<div class="legend-item">' +
+        '<div style="background-color:' + item.color + ';"></div>' +
+        item.name +
+        '</div>'
+    );
+});
+
+// Funkcja do aktualizacji legendy
+function updateLegend() {
+    var legendContent = $('#legendContent');
+    legendContent.empty(); // Czyści legendę
+
+    // Przygotowanie tablicy do przechowywania warstw "groby"
+    var legendItems = [];
+
+    // Zbieranie warstw "groby" do tablicy
+    Object.keys(layers).forEach(function(layerId) {
+        if (layerId.startsWith('groby')) {  // Tylko dla warstw "groby"
+            var color = getColor(layerId);
+            if (color) {  // Tylko dodaj, jeśli kolor nie jest pusty
+                var layerIndex = parseInt(layerId.replace('groby', ''));
+                if (!isNaN(layerIndex)) {  // Sprawdzamy, czy numer jest prawidłowy
+                    // Zmieniamy nazwę dla warstwy 16
+                    var layerName = (layerIndex === 16) ? 'Rezerwacje' : 'Kwatera ' + layerIndex;
+
+                    legendItems.push({
+                        index: layerIndex,
+                        name: layerName,
+                        color: color,
+                        isRezerwacje: (layerIndex === 16)
+                    });
+                }
+            }
+        }
+    });
+
+    // Dodaj warstwę Kaplica do legendy
+    legendItems.push({
+        index: null,  // Brak indeksu dla Kaplicy
+        name: 'Kaplica',
+        color: 'yellow'
+    });
+
+    // Sortowanie tablicy według numerów kwater
+    legendItems.sort(function(a, b) {
+        return a.index - b.index;
+    });
+
+    // Dodawanie posortowanych warstw do legendy
+    legendItems.forEach(function(item) {
+        var style = '';
+        if (item.isRezerwacje) {
+            style = 'border: 2px solid green; background-color: rgba(0, 255, 0, 0.1);'; // Zielona obwódka, przeźroczyste wypełnienie
+        } else {
+            style = 'background-color:' + item.color + ';'; // Normalne kolory dla innych warstw
+        }
+
+        legendContent.append(
+            '<div class="legend-item">' +
+            '<div style="' + style + '"></div>' +
+            item.name +
+            '</div>'
+        );
+    });
+}
+
+// Funkcja do tworzenia warstwy z pliku GeoJSON
+function createNonInteractiveLayer(url, layerName, styleOptions) {
+    return new Promise(function(resolve, reject) {
+        $.getJSON(url, function(data) {
+            var layer = L.geoJSON(data, {
+                style: function() {
+                    return styleOptions;
+                },
+                onEachFeature: function(feature, layer) {
+                    // Nie dodawaj popupów ani tooltipów, aby warstwa była nieklikalna
+                }
+            });
+
+            // Dodaj warstwę do mapy (jeśli chcesz)
+            layer.addTo(map);
+
+            resolve(layer);
+        }).fail(function() {
+            console.error("Nie udało się załadować pliku GeoJSON: " + url);
+            resolve(null);
+        });
+    });
+}
+
+// Styl dla warstwy Kaplica
+var kaplicaStyle = {
+    color: 'black',          // Kolor obramowania
+    weight: 1,               // Grubość obramowania
+    fillColor: 'yellow',     // Kolor wypełnienia
+    fillOpacity: 0.5         // Przezroczystość wypełnienia
+};
+
+// Tworzenie warstwy Kaplica i dodanie jej do mapy
+createNonInteractiveLayer('Kaplica.geojson', 'Kaplica', kaplicaStyle).then(function(layer) {
+    if (layer) {
+        console.log('Warstwa Kaplica została utworzona i dodana do mapy');
+        // Dodaj warstwę Kaplica do legendy
+        updateLegend();
+    } else {
+        console.error('Nie udało się utworzyć warstwy Kaplica');
+    }
+});
+}
+
+    $('#searchBox').on('input', function() {
+        searchGrave();
+    });
+
+    $('#searchBox').on('keypress', function(e) {
+        if (e.which === 13) {
+            searchGrave();
+        }
+    });
+
+    $('#authorPopup').on('click', function() {
+        alert("Autor mapy: Paweł Maćkowiak\nDane opracowali: Zofia Poprawska, Piotr Bączyk");
+    });
+
+    $('.designer-small').on('click', function() {
+        alert("Autor mapy: Paweł Maćkowiak\nDane opracowali: Zofia Poprawska, Piotr Bączyk");
+    });
