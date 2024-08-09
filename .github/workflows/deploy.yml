@@ -13,11 +13,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: List files in publish directory
+      run: ls -la ./public  # Zaktualizuj ścieżkę, jeśli używasz innego katalogu
+
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./ # Wskaż katalog z plikami do opublikowania
-
+        publish_dir: ./public  # Zaktualizuj ścieżkę do katalogu z plikami do publikacji
 
 
