@@ -2,12 +2,11 @@
     // Ustal zoom na podstawie szerokości ekranu
     var initialZoom = window.innerWidth <= 768 ? 18 : 19;
 
-    // Inicjalizacja mapy
     var map = L.map('map', {
-        center: [51.761846519306985, 16.813415227957215], // Współrzędne cmentarza
-        zoom: initialZoom, // Ustalony zoom
-        maxZoom: 25, // Maksymalne powiększenie
-        renderer: L.canvas() // Użyj renderera Canvas dla lepszej wydajności
+        center: [51.761846519306985, 16.813415227957215],
+        zoom: initialZoom,
+        maxZoom: 25,
+        renderer: L.canvas(),
     });
     var layers = {};
     var layerPromises = [];
@@ -22,12 +21,10 @@
         "Satelita": L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}@2x.jpg?key=skY2IhGdjYaBBPgoXCPK', {
             maxZoom: 30,
             attribution: '© MapTiler contributors'
-        })
-    };
-   
+        })  };
+  // Dodanie warstwy OSM jako domyślny
+  baseMaps.OSM.addTo(map);
 
-    // Dodanie warstwy OSM jako domyślny
-    baseMaps.OSM.addTo(map);
 
     function style(feature) {
         var layerId = feature.layerId;
@@ -60,7 +57,39 @@ function createNonInteractiveLayer(url, layerId, layerName, styleOptions) {
         });
     });
 }
+var layerId = {
+    'https://github.com/pawel96mac/eCmentarz/raw/main/Grobowiec1.geojson': 'Grobowiec1',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/Grobowiec2.geojson': 'Grobowiec2',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/Kaplica.geojson': 'Kaplica',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby1.geojson': 'groby1',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby10.geojson': 'groby10',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby11.geojson': 'groby11',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby12.geojson': 'groby12',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby13.geojson': 'groby13',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby14.geojson': 'groby14',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby15.geojson': 'groby15',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby16.geojson': 'groby16',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby2.geojson': 'groby2',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby3.geojson': 'groby3',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby4.geojson': 'groby4',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby5.geojson': 'groby5',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby6.geojson': 'groby6',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby7.geojson': 'groby7',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby8.geojson': 'groby8',
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby9.geojson': 'groby9'
+};
 
+Object.entries(layerId).forEach(function([url, id], index) {
+    createLayer(url, id).then(function(layerGroup) {
+        if (layerGroup) {
+            console.log('Layer ' + id + ' added to map.');
+        } else {
+            console.error('Failed to add layer ' + id + '.');
+        }
+    }).catch(function(error) {
+        console.error('Error loading layer ' + id + ':', error);
+    });
+});
 
 
 function getColor(layerId) {
@@ -244,39 +273,11 @@ function createLayer(url, layerId) {
         });
     });
 }
-// Linki do pobrania plików geojson z Google Drive
-var geoJsonUrls = [
-    'https://drive.google.com/uc?export=download&id=1NHYNPDNrl5wz4OJYH1EGU5oDpDj9CPuG',
-    'https://drive.google.com/uc?export=download&id=1ENTfZe1vql1ZbY-UcE3WDSblA_FMm3wN',
-    'https://drive.google.com/uc?export=download&id=1_-mGoK5O1L9oj-6KYNOkRdBHh__Nm7zA',
-    'https://drive.google.com/uc?export=download&id=1048RcsOk3F1oiAoq0Hk_zsixcb6_tlL0',
-    'https://drive.google.com/uc?export=download&id=1Ba-z-6vzsovZ75ddKdm46BPecc9NwpIE',
-    'https://drive.google.com/uc?export=download&id=1dCT-4CymK392t8qXLkASEE-Fe0oK9l5R',
-    'https://drive.google.com/uc?export=download&id=1zpos9CykhTC_54MKTs7-5gwnNDVsOnUo',
-    'https://drive.google.com/uc?export=download&id=1GRN7XcQUGF6IpqGRJfG98Jbpzkhhu2aP',
-    'https://drive.google.com/uc?export=download&id=1dybRHTbLKx2yBw44pVnv0285QaPRfwF5',
-    'https://drive.google.com/uc?export=download&id=1HSRPiisQ-TlhK8JOy-toeGjL0tgZKbES',
-    'https://drive.google.com/uc?export=download&id=1tqarzi6ot4L1FR7lVJ4C50t6DJ6frxVW',
-    'https://drive.google.com/uc?export=download&id=1syFAg_-NshvoPtlZ_k7Y0bJiDgatKbuW',
-    'https://drive.google.com/uc?export=download&id=1VQBMecN04-Dz88euVrR9CWZrDeOhhTqX',
-    'https://drive.google.com/uc?export=download&id=1aJNTdFV6YLuUwgwrL5MOuTn-hh7UNwFL',
-    'https://drive.google.com/uc?export=download&id=17p12fyWPj1heVZX3ay65ZSnbZdKPTn4g',
-    'https://drive.google.com/uc?export=download&id=1dBiQYkh2OWNtOm5-OtBr5H4DODWcsd2f',
-    'https://drive.google.com/uc?export=download&id=17OQXjTgx3R5AyOTsvsoOhvGlEkENkZoH',
-    'https://drive.google.com/uc?export=download&id=1vNbBM8n1DU20Rru7ll9Pe1y8HfcqSM17',
-    'https://drive.google.com/uc?export=download&id=12J2UMNamZ7DqY1OVXDa60JqRtMM1rZ68'
-];
+// Lista linków do plików GeoJSON
 
-// Iterowanie przez wszystkie URL i tworzenie warstw
-geoJsonUrls.forEach(function(url, index) {
-    createLayer(url, 'layerId_' + index).then(function(layerGroup) {
-        if (layerGroup) {
-            console.log('Layer added to map.');
-        } else {
-            console.error('Failed to add layer.');
-        }
-    });
-});
+
+
+
     
     
     // Funkcja do zarządzania widocznością tooltipów na podstawie zoomu
@@ -316,14 +317,6 @@ geoJsonUrls.forEach(function(url, index) {
         });
     }
     
-    // Użycie debounce do obsługi zdarzenia zoomend
-    function debounce(func, wait) {
-        let timeout;
-        return function(...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), wait);
-        };
-    }
     
     // Dodanie debouncingu do obsługi zoomend
     map.on('zoomend', debounce(handleTooltipVisibility, 300));
@@ -579,23 +572,6 @@ return `
 `;
 }
 
-// Funkcja do zmieniania rozmiaru popupu
-let popupSize = 300; // Początkowa szerokość popupu
-
-function resizePopup(amount) {
-popupSize += amount;
-if (popupSize < 100) popupSize = 100; // Minimalna szerokość
-if (popupSize > 600) popupSize = 600; // Maksymalna szerokość
-
-const popups = document.querySelectorAll('.leaflet-popup-content-wrapper');
-popups.forEach(popup => {
-    popup.style.width = popupSize + 'px';
-});
-}
-
-// Przykład użycia w tworzeniu popupu
-L.marker([51.5, -0.09]).addTo(map)
-.bindPopup(createPopupContent());
 function updateLegend() {
 var legendContent = $('#legendContent');
 legendContent.empty(); // Czyści legendę
