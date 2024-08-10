@@ -20,6 +20,6 @@ jobs:
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./public  # Zaktualizuj ścieżkę do katalogu z plikami do publikacji
+        publish_dir: ./public  # Zaktualizuj ścieżkę do katalogu z plikami do publikacj
 
 
