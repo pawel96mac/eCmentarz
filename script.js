@@ -1,6 +1,6 @@
 
     // Ustal zoom na podstawie szerokości ekranu
-    var initialZoom = window.innerWidth <= 768 ? 18 : 19;
+    var initialZoom = 19;
 
     var map = L.map('map', {
         center: [51.761846519306985, 16.813415227957215],
