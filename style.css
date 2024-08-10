@@ -170,6 +170,9 @@ margin-bottom: 5px; /* Odstęp między datą urodzenia a datą śmierci */
     .title {
         font-size: 18px;
     }
+    .custom-tooltip {
+        display: none;
+}
     .search-container {
         top: auto;
         bottom: 10px;
