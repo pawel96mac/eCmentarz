@@ -163,6 +163,9 @@ margin-bottom: 5px; /* Odstęp między datą urodzenia a datą śmierci */
 .legend:hover .legend-content {
     display: block;
 }
+ .designer-small {
+     display: none;
+ }
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
