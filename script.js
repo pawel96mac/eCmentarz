@@ -714,6 +714,22 @@ createNonInteractiveLayer('Kaplica.geojson', 'Kaplica', kaplicaStyle).then(funct
     }
 });
 }
+// Funkcja do dodawania warstwy z pliku GeoJSON
+function createNonInteractiveLayer(url, layerName, style) {
+    return new Promise((resolve, reject) => {
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const layer = L.geoJSON(data, { style: style });
+                layer.addTo(map); // Dodaj warstwę do mapy
+                resolve(layer);
+            })
+            .catch(error => {
+                console.error('Błąd podczas ładowania warstwy:', error);
+                reject(null);
+            });
+    });
+}
 // Definicje stylów dla warstwy liniowej Obszar1
 const obszarStyle = {
     color: '#ff7800', // Kolor linii
