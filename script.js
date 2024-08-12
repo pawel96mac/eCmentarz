@@ -13,12 +13,14 @@
     var orderedOverlayMaps = [];
 
     // Dodanie warstw mapy
-var baseMaps = {
-    "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors'
-    })
-};
+OSM": L.tileLayer('https://api.maptiler.com/maps/openstreetmap/{z}/{x}/{y}@2x.jpg?key=pDM24DBsryBDrIeZmRKb', {
+            maxZoom: 30,
+            attribution: '© OpenStreetMap contributors'
+        }),
+        "Satelita": L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}@2x.jpg?key=pDM24DBsryBDrIeZmRKb', {
+            maxZoom: 30,
+            attribution: '© MapTiler contributors'
+        })  };
 
   // Dodanie warstwy OSM jako domyślny
   baseMaps.OSM.addTo(map);
