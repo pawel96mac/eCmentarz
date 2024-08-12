@@ -13,15 +13,17 @@
     var orderedOverlayMaps = [];
 
     // Dodanie warstw mapy
-    var baseMaps = {
-        "OSM": L.tileLayer('https://api.maptiler.com/maps/openstreetmap/{z}/{x}/{y}@2x.jpg?key=skY2IhGdjYaBBPgoXCPK', {
-            maxZoom: 30,
-            attribution: '© OpenStreetMap contributors'
-        }),
-        "Satelita": L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}@2x.jpg?key=skY2IhGdjYaBBPgoXCPK', {
-            maxZoom: 30,
-            attribution: '© MapTiler contributors'
-        })  };
+var baseMaps = {
+    "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 25,
+        attribution: '© OpenStreetMap contributors'
+    }),
+    "Satelita": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        maxZoom: 25,
+        attribution: '© OpenTopoMap contributors'
+    })
+};
+
   // Dodanie warstwy OSM jako domyślny
   baseMaps.OSM.addTo(map);
 
