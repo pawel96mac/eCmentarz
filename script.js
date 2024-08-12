@@ -13,12 +13,12 @@
     var orderedOverlayMaps = [];
 
 var baseMaps = {
-    "OSM": L.tileLayer('https://api.maptiler.com/maps/openstreetmap/{z}/{x}/{y}.png?key=pDM24DBsryBDrIeZmRKb', {
-        maxZoom: 30,
+    "OSM": L.tileLayer('https://api.maptiler.com/maps/openstreetmap/{z}/{x}/{y}.jpg?key=pDM24DBsryBDrIeZmRKb', {
+        maxZoom: 23,
         attribution: '© OpenStreetMap contributors'
     }),
     "Satelita": L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=pDM24DBsryBDrIeZmRKb', {
-        maxZoom: 30,
+        maxZoom: 23,
         attribution: '© MapTiler contributors'
     })
 };
