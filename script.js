@@ -14,13 +14,9 @@
 
     // Dodanie warstw mapy
 var baseMaps = {
-    "Mapbox Streets": L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoicGF3ZWw5Nm1hYyIsImEiOiJjbHlxMTNsMnMwcW9hMnNyNnBqNW1xeHh0In0.X-eiUqscrHQcmYfjLVPUJA', {
-        maxZoom: 22,
-        attribution: '© Mapbox © OpenStreetMap'
-    }),
-    "Mapbox Satellite": L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoicGF3ZWw5Nm1hYyIsImEiOiJjbHlxMTNsMnMwcW9hMnNyNnBqNW1xeHh0In0.X-eiUqscrHQcmYfjLVPUJA', {
-        maxZoom: 22,
-        attribution: '© Mapbox © OpenStreetMap'
+    "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
     })
 };
 
