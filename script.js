@@ -77,7 +77,8 @@ var layerId = {
     'https://github.com/pawel96mac/eCmentarz/raw/main/groby6.geojson': 'groby6',
     'https://github.com/pawel96mac/eCmentarz/raw/main/groby7.geojson': 'groby7',
     'https://github.com/pawel96mac/eCmentarz/raw/main/groby8.geojson': 'groby8',
-    'https://github.com/pawel96mac/eCmentarz/raw/main/groby9.geojson': 'groby9'
+    'https://github.com/pawel96mac/eCmentarz/raw/main/groby9.geojson': 'groby9',
+    'https://raw.githubusercontent.com/poniec/eCmentarz/main/obszar1.geojson': 'Obszar1'
 };
 
 Object.entries(layerId).forEach(function([url, id], index) {
