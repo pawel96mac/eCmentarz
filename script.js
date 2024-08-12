@@ -714,7 +714,23 @@ createNonInteractiveLayer('Kaplica.geojson', 'Kaplica', kaplicaStyle).then(funct
     }
 });
 }
+// Definicje stylów dla warstwy liniowej Obszar1
+const obszarStyle = {
+    color: '#ff7800', // Kolor linii
+    weight: 3,       // Grubość linii
+    opacity: 1       // Przezroczystość
+};
 
+// Dodanie warstwy Obszar1 (linia) jako tło (z niższym zIndex)
+createNonInteractiveLayer('Obszar1.geojson', 'Obszar1', obszarStyle, 1).then(function(layer) {
+    if (layer) {
+        console.log('Warstwa Obszar1 została utworzona i dodana do mapy');
+        // Dodaj warstwę Obszar1 do legendy
+        updateLegend();
+    } else {
+        console.error('Nie udało się utworzyć warstwy Obszar1');
+    }
+});
     $('#searchBox').on('input', function() {
         searchGrave();
     });
