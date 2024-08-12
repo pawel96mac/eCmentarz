@@ -17,10 +17,6 @@ var baseMaps = {
     "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 25,
         attribution: '© OpenStreetMap contributors'
-    }),
-    "Satelita": L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-        maxZoom: 25,
-        attribution: '© OpenTopoMap contributors'
     })
 };
 
