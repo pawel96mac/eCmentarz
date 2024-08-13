@@ -16,11 +16,7 @@ var baseMaps = {
         "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 23,  // Maksymalny zoom dla mapy podstawowej OpenStreetMap
         attribution: '© OpenStreetMap contributors'
-}),
-    "Satelita": L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=pDM24DBsryBDrIeZmRKb', {
-        maxZoom: 23,
-        attribution: '© MapTiler contributors'
-    })
+})
 };
 
   // Dodanie warstwy OSM jako domyślny
