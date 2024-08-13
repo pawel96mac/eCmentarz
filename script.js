@@ -60,15 +60,18 @@ const terenStyle = {
     fillOpacity: 1       // Przezroczystość wypełnienia (fill-opacity)
 };
 
-// Dodanie warstwy teren.geojson jako podkład
 createBackgroundLayer('teren.geojson', terenStyle).then(function(layer) {
     if (layer) {
         console.log('Warstwa Teren została utworzona i dodana do mapy');
-        // Warstwa Teren jest teraz podkładem
+        // Upewnij się, że inne warstwy są nad warstwą Teren
+        for (var key in layers) {
+            if (layers.hasOwnProperty(key)) {
+                layers[key].bringToFront();
+            }
+        }
     } else {
         console.error('Nie udało się utworzyć warstwy Teren');
     }
-}); 
 function createNonInteractiveLayer(url, layerId, layerName, styleOptions) {
     return new Promise(function(resolve, reject) {
         $.getJSON(url, function(data) {
