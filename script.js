@@ -78,7 +78,7 @@ var layerId = {
     'https://github.com/pawel96mac/eCmentarz/raw/main/groby7.geojson': 'groby7',
     'https://github.com/pawel96mac/eCmentarz/raw/main/groby8.geojson': 'groby8',
     'https://github.com/pawel96mac/eCmentarz/raw/main/groby9.geojson': 'groby9',
-    'https://raw.githubusercontent.com/poniec/eCmentarz/main/obszar1.geojson': 'Obszar1'
+    'https://raw.githubusercontent.com/poniec/eCmentarz/main/obszar1.geojson': 'obszar1'
 };
 
 Object.entries(layerId).forEach(function([url, id], index) {
@@ -739,7 +739,7 @@ const obszarStyle = {
 };
 
 // Dodanie warstwy Obszar1 (linia) jako tło (z niższym zIndex)
-createNonInteractiveLayer('Obszar1.geojson', 'Obszar1', obszarStyle, 1).then(function(layer) {
+createNonInteractiveLayer('obszar1.geojson', 'obszar1', obszarStyle, 1).then(function(layer) {
     if (layer) {
         console.log('Warstwa Obszar1 została utworzona i dodana do mapy');
         // Dodaj warstwę Obszar1 do legendy
