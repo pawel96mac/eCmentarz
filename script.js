@@ -733,7 +733,7 @@ function createNonInteractiveLayer(url, layerName, style) {
 }
 // Definicje stylów dla warstwy liniowej Obszar1
 const obszarStyle = {
-    color: '#ff7800', // Kolor linii
+    color: '#6d9665', // Kolor linii
     weight: 3,       // Grubość linii
     opacity: 1       // Przezroczystość
 };
