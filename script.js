@@ -33,7 +33,7 @@ var baseMaps = {
             fillOpacity: 0.7
         };
     }
-    // Funkcja do dodawania warstwy z pliku GeoJSON jako podkład
+// Funkcja do dodawania warstwy z pliku GeoJSON jako podkład
 function createBackgroundLayer(url, style) {
     return new Promise((resolve, reject) => {
         fetch(url)
@@ -60,6 +60,7 @@ const terenStyle = {
     fillOpacity: 1       // Przezroczystość wypełnienia (fill-opacity)
 };
 
+// Dodanie warstwy teren.geojson jako podkład i ustawienie innych warstw nad nią
 createBackgroundLayer('teren.geojson', terenStyle).then(function(layer) {
     if (layer) {
         console.log('Warstwa Teren została utworzona i dodana do mapy');
@@ -72,6 +73,9 @@ createBackgroundLayer('teren.geojson', terenStyle).then(function(layer) {
     } else {
         console.error('Nie udało się utworzyć warstwy Teren');
     }
+});
+
+// Funkcja do dodawania nieinteraktywnej warstwy z pliku GeoJSON
 function createNonInteractiveLayer(url, layerId, layerName, styleOptions) {
     return new Promise(function(resolve, reject) {
         $.getJSON(url, function(data) {
@@ -92,6 +96,7 @@ function createNonInteractiveLayer(url, layerId, layerName, styleOptions) {
         });
     });
 }
+
 var layerId = {
     'https://github.com/pawel96mac/eCmentarz/raw/main/Grobowiec1.geojson': 'Grobowiec1',
     'https://github.com/pawel96mac/eCmentarz/raw/main/Grobowiec2.geojson': 'Grobowiec2',
