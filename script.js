@@ -13,10 +13,10 @@
     var orderedOverlayMaps = [];
 
 var baseMaps = {
-    "OSM": L.tileLayer('https://api.maptiler.com/maps/openstreetmap/{z}/{x}/{y}.jpg?key=pDM24DBsryBDrIeZmRKb', {
-        maxZoom: 23,
+        "OSM": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 23,  // Maksymalny zoom dla mapy podstawowej OpenStreetMap
         attribution: '© OpenStreetMap contributors'
-    }),
+}),
     "Satelita": L.tileLayer('https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=pDM24DBsryBDrIeZmRKb', {
         maxZoom: 23,
         attribution: '© MapTiler contributors'
@@ -37,7 +37,42 @@ var baseMaps = {
             fillOpacity: 0.7
         };
     }
-   
+    // Funkcja do dodawania warstwy z pliku GeoJSON jako podkład
+function createBackgroundLayer(url, style) {
+    return new Promise((resolve, reject) => {
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const layer = L.geoJSON(data, { style: style });
+                layer.setZIndex(1); // Ustawienie zIndex na 1, aby warstwa była pod innymi
+                layer.addTo(map); // Dodaj warstwę do mapy
+                resolve(layer);
+            })
+            .catch(error => {
+                console.error('Błąd podczas ładowania warstwy:', error);
+                reject(null);
+            });
+    });
+}
+
+// Styl dla warstwy teren.geojson na podstawie pliku teren.sld
+const terenStyle = {
+    color: '#232323',    // Kolor linii (stroke)
+    weight: 0.5,         // Grubość linii (stroke-width)
+    opacity: 0,          // Przezroczystość linii (stroke-opacity)
+    fillColor: '#a2caa9',// Kolor wypełnienia (fill)
+    fillOpacity: 1       // Przezroczystość wypełnienia (fill-opacity)
+};
+
+// Dodanie warstwy teren.geojson jako podkład
+createBackgroundLayer('teren.geojson', terenStyle).then(function(layer) {
+    if (layer) {
+        console.log('Warstwa Teren została utworzona i dodana do mapy');
+        // Warstwa Teren jest teraz podkładem
+    } else {
+        console.error('Nie udało się utworzyć warstwy Teren');
+    }
+}); 
 function createNonInteractiveLayer(url, layerId, layerName, styleOptions) {
     return new Promise(function(resolve, reject) {
         $.getJSON(url, function(data) {
@@ -715,39 +750,7 @@ createNonInteractiveLayer('Kaplica.geojson', 'Kaplica', kaplicaStyle).then(funct
     }
 });
 }
-// Funkcja do dodawania warstwy z pliku GeoJSON
-function createNonInteractiveLayer(url, layerName, style) {
-    return new Promise((resolve, reject) => {
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                const layer = L.geoJSON(data, { style: style });
-                layer.addTo(map); // Dodaj warstwę do mapy
-                resolve(layer);
-            })
-            .catch(error => {
-                console.error('Błąd podczas ładowania warstwy:', error);
-                reject(null);
-            });
-    });
-}
-// Definicje stylów dla warstwy liniowej Obszar1
-const obszarStyle = {
-    color: '#6d9665', // Kolor linii
-    weight: 3,       // Grubość linii
-    opacity: 1       // Przezroczystość
-};
 
-// Dodanie warstwy Obszar1 (linia) jako tło (z niższym zIndex)
-createNonInteractiveLayer('obszar1.geojson', 'obszar1', obszarStyle, 1).then(function(layer) {
-    if (layer) {
-        console.log('Warstwa Obszar1 została utworzona i dodana do mapy');
-        // Dodaj warstwę Obszar1 do legendy
-        updateLegend();
-    } else {
-        console.error('Nie udało się utworzyć warstwy Obszar1');
-    }
-});
     $('#searchBox').on('input', function() {
         searchGrave();
     });
