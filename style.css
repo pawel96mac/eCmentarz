@@ -108,9 +108,21 @@ right: 0;
     width: 100%;
     box-shadow: 0 -1px 10px rgba(174, 171, 171, 0.3);
 }
-.footer .designer {
-    font-size: 15px;
-    font-weight: bold;
+.designer {
+    position: absolute;
+    top: 10px;   /* Odległość od górnej krawędzi */
+    left: 10px;  /* Odległość od lewej krawędzi */
+    background-color: #ffffff; /* Kolor tła */
+    color: black;  /* Kolor tekstu */
+    padding: 10px; /* Odstęp wewnętrzny */
+    border-radius: 4px; /* Zaokrąglone rogi */
+    cursor: pointer;  /* Zmiana kursora na wskaźnik przy najechaniu */
+    z-index: 1000; /* Ustawienie elementu na wierzchu */
+    font-size: 14px; /* Rozmiar czcionki */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Lekki cień */
+}
+.designer:hover {
+    background-color: #c1dec2; /* Zmiana koloru tła przy najechaniu */
 }
 .footer .text {
     font-size: 14px;
