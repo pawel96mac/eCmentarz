@@ -51,6 +51,34 @@ function createBackgroundLayer(url, style) {
     });
 }
 
+// Dodaj kontrolkę lokalizacji do mapy
+L.control.locate({
+    position: 'topleft',  // Pozycja przycisku na mapie
+    drawCircle: true,      // Rysowanie okręgu wokół pozycji użytkownika
+    follow: true,          // Śledzenie lokalizacji użytkownika
+    setView: true,         // Automatyczne przesuwanie mapy do lokalizacji użytkownika
+    keepCurrentZoomLevel: true,  // Zachowanie obecnego poziomu powiększenia
+    markerStyle: {
+        weight: 1,
+        opacity: 0.8,
+        fillOpacity: 0.8
+    },
+    circleStyle: {
+        weight: 1,
+        clickable: false
+    },
+    icon: 'fa fa-location-arrow',  // Ikona przycisku
+    metric: false,   // Użycie jednostek metrycznych (false dla mil)
+    onLocationError: function(err) {  // Obsługa błędów lokalizacji
+        alert(err.message);
+    },
+    showPopup: false, 
+    strings: {
+        title: "Włącz lokalizację",  // Tekst wyświetlany po najechaniu na przycisk
+    } // Nie pokazuj okna popup
+}).addTo(map);
+
+
 // Styl dla warstwy teren.geojson na podstawie pliku teren.sld
 const terenStyle = {
     color: '#232323',    // Kolor linii (stroke)
